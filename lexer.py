@@ -2,21 +2,21 @@
 # Concepts of Programming Languages
 
 # Mini-power
-# <stmts><stmt> {;<stmt>}
-# <stmt>(<print-stmt> | <assgmt-stmt>)
-# <print-stmt>PRINT(<id> | <const>)
-# <assgmt-stmt><id> =(<expr> | <string>)
-# <id><letter>{(<letter> | <digit>)}($|#|%)
-# <expr><expr> (+| -) <term> | <term>
-# <term><term> (*| /) <factor> | <factor>
-# <factor><expr> ^<factor> | (<expr> )| <num-const> | <id>
-# <const><num-const> | <string>
-# <num-const><int-const> | <real-const>
-# <int-const>[(+|-)] <digit>{<digit>}
-# <real-const>[(+|-)] <digit>{<digit>}.{<digit>}
-# <string>ʺ{(<letter> | <digit>)}ʺ
-# <digit>(0| 1| 2| 3| 4| 5| 6| 7| 8| 9)
-# <letter>(a| b| c| d| e| f| g| h| i| j| k| l| m|n| o| p| q| r| s| t| u| v| w| x| y| z)
+# <stmts>ïƒ <stmt> {;<stmt>}
+# <stmt>ïƒ (<print-stmt> | <assgmt-stmt>)
+# <print-stmt>ïƒ PRINT(<id> | <const>)
+# <assgmt-stmt>ïƒ <id> =(<expr> | <string>)
+# <id>ïƒ <letter>{(<letter> | <digit>)}($|#|%)
+# <expr>ïƒ <expr> (+| -) <term> | <term>
+# <term>ïƒ <term> (*| /) <factor> | <factor>
+# <factor>ïƒ <expr> ^<factor> | (<expr> )| <num-const> | <id>
+# <const>ïƒ <num-const> | <string>
+# <num-const>ïƒ <int-const> | <real-const>
+# <int-const>ïƒ [(+|-)] <digit>{<digit>}
+# <real-const>ïƒ [(+|-)] <digit>{<digit>}.{<digit>}
+# <string>ïƒ Êº{(<letter> | <digit>)}Êº
+# <digit>ïƒ (0| 1| 2| 3| 4| 5| 6| 7| 8| 9)
+# <letter>ïƒ (a| b| c| d| e| f| g| h| i| j| k| l| m|n| o| p| q| r| s| t| u| v| w| x| y| z)
 
 import sys
 
@@ -38,7 +38,8 @@ tokens = {
     "$": "STRING",
     "PRINT": "PRINT",
     "FLOAT": "REAL_CONST",
-    "INT":  "INT_CONST"
+    "INT":  "INT_CONST",
+    "\"": "QUOTE"
 }
 
 
@@ -64,7 +65,6 @@ def get_char(read_res, main_file):
                 cur_index = cur_index + 1
                 first = False
             string_dec = string_dec + read_res[cur_index]
-            cur_index = cur_index + 1
             return string_dec
         if read_res[cur_index] == 'P':
             i = 0
@@ -121,18 +121,21 @@ def check_dig(char, read_list):
 # Returns: Appropriate Token (and potentially token name)
 def get_token(char, read_list):
     try:
-        global tokens, cur_index
+        global tokens, cur_index, token_count
         if 'a' <= char <= 'z':      # If beginning with a letter
             return tokens["ID"] + ' ' + check_id(char, read_list) + ' '
         elif '0' <= char <= '9':    # If beginning with a number
             ret_value = check_dig(char, read_list)
             if ret_value.find('.') >= 0:
+                token_count = token_count + 1
                 return tokens["FLOAT"] + ' ' + ret_value + '\n'
             else:
+                token_count = token_count + 1
                 return tokens["INT"] + ' ' + ret_value + '\n'
 
         elif char[0] == '\"':
             cur_index = cur_index + 1
+            token_count = token_count + 1
             return "STRING " + char + '\n'  # If beginning with \"
         else:
             cur_index = cur_index + 1
@@ -145,8 +148,7 @@ def get_token(char, read_list):
 # MAIN
 # Opens and Reads file
 try:
-    input_name = 'input.txt'
-    # input_name = sys.argv[1]
+    input_name = sys.argv[1]
     input_file = open(input_name, "r")
 
     read_file = input_file.read()
@@ -163,28 +165,27 @@ try:
 
     # Re-initialize Current Index after list is attained w/o whitespace
     cur_index = cur_index - cur_index  # cur_index = 0 gave warnings so just subtracted it by self
-
+    test_file = open("input.out", "w+")
+    print("Processing input file " + input_name)
+    token_count = 0
     while True:
-        ret_val = get_token(char_list[cur_index], char_list)
-        test_file = open("input.out", "w+")
-        test_file.write(ret_val)
+
         try:
-
+            ret_val = get_token(char_list[cur_index], char_list)
             # Appends newline when necessary
-            # if ret_val in ("REAL", "INTEGER", "STRING", "ASSIGN", "PLUS", "TIMES", "MINUS",
-            #                "DIV", "POWER", "PRINT", "SEMICOLON", "R-PAR", "L-PAR"):
-            #     test_file.write(ret_val + "\n")
-            #     # sys.stdout.write(ret_val + "\n")
-            # else:
-            #     test_file.write(ret_val)
-            #     # sys.stdout.write(ret_val)
+            if ret_val in ("REAL", "INTEGER", "STRING", "ASSIGN", "PLUS", "TIMES", "MINUS",
+                           "DIV", "POWER", "PRINT", "SEMICOLON", "R-PAR", "L-PAR"):
+                test_file.write(ret_val + '\n')
+                token_count = token_count + 1
+            else:
+                test_file.write(ret_val)
 
-            print(ret_val)
             # When index is too high, break the while loop and quit program
         except IndexError:
             break
 
-    # test_file.close()
+    print(str(token_count) + " tokens produced")
+    print("Result in file input.out")
 
 except FileNotFoundError:
     print("File Does Not Exist")

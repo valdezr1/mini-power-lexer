@@ -1,0 +1,4 @@
+mystring$ = "str ajpfkwmqlmlflwjsf";
+lol# = 0980808082;
+garbagefloat% = 1342353452.;
+PRINT mystring$;

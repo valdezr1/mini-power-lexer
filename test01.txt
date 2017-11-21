@@ -1,0 +1,5 @@
+alongvariablename% = 3.14159;
+bigname# = 100;
+value% = (alongvariablename% ^ bigname#);
+PRINT "r";
+PRINT value%;
